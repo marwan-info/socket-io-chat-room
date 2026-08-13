@@ -53,7 +53,10 @@ cmd /c "cd /d c:\Users\Marwan\Downloads\socketio && npm install && npm start"
 ```
 ## Demo
 
-[Watch Demo](./socketiovideo.mp4)
+<video width="800" controls>
+  <source src="./demo.mp4" type="video/mp4">
+</video>
+
 ## License
 
 This project is for learning and demo purposes.
