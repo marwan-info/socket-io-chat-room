@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Colorful Socket Chat</title>
+    <style>
+      :root {
+        --bg-1: #0f172a;
+        --bg-2: #1d4ed8;
+        --bg-3: #ec4899;
+        --panel: rgba(15, 23, 42, 0.7);
+        --panel-border: rgba(255, 255, 255, 0.15);
+        --text: #e2e8f0;
+        --muted: #cbd5e1;
+        --primary: #38bdf8;
+        --success: #34d399;
+        --warning: #fbbf24;
+        --danger: #f87171;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .app {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px 16px 110px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--panel-border);
+        backdrop-filter: blur(10px);
+        border-radius: 18px;
+        padding: 14px 18px;
+        box-shadow: 0 15px 30px rgba(15, 23, 42, 0.25);
+        margin-bottom: 18px;
+      }
+
+      .title {
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+
+      .online-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--success);
+        font-size: 0.9rem;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 10px rgba(52, 211, 153, 0.8);
+      }
+
+      .name-card {
+        display: flex;
+        gap: 10px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.45);
+        border: 1px solid var(--panel-border);
+        margin-bottom: 16px;
+      }
+
+      .name-card input {
+        flex: 1;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      .name-card button,
+      #form button {
+        border: none;
+        border-radius: 12px;
+        padding: 12px 18px;
+        background: linear-gradient(135deg, var(--primary), #8b5cf6);
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      #messages {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .message {
+        max-width: 70%;
+        padding: 12px 14px;
+        border-radius: 18px;
+        line-height: 1.4;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .message.self {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #10b981, #0ea5e9);
+      }
+
+      .message.other {
+        align-self: flex-start;
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .message.system {
+        align-self: center;
+        max-width: 85%;
+        text-align: center;
+        background: rgba(251, 191, 36, 0.15);
+        color: #fef3c7;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 0.72rem;
+        opacity: 0.9;
+        margin-bottom: 6px;
+      }
+
+      .typing-indicator {
+        min-height: 24px;
+        color: var(--muted);
+        font-size: 0.88rem;
+        padding: 6px 10px;
+        margin-top: 8px;
+        opacity: 0.9;
+      }
+
+      #form {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(900px, calc(100% - 24px));
+        display: flex;
+        gap: 12px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid var(--panel-border);
+        backdrop-filter: blur(10px);
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.35);
+      }
+
+      #input {
+        flex: 1;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 16px;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      #input:focus {
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="header">
+        <div class="title">Socketio Chat Room</div>
+        <div class="online-status"><span class="dot"></span> online</div>
+      </div>
+
+      <div class="name-card">
+        <input id="nameInput" type="text" placeholder="Enter your name" maxlength="20" />
+        <button id="joinBtn" type="button">Set Name</button>
+      </div>
+
+      <ul id="messages"></ul>
+      <div id="typingIndicator" class="typing-indicator"></div>
+    </div>
+
+    <form id="form" action="">
+      <input id="input" autocomplete="off" placeholder="Type a message..." />
+      <button type="submit">Send</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+      const messages = document.getElementById('messages');
+      const nameInput = document.getElementById('nameInput');
+      const joinBtn = document.getElementById('joinBtn');
+      const typingIndicator = document.getElementById('typingIndicator');
+
+      let userName = 'Guest';
+      let typingTimeout = null;
+
+      function setUserName() {
+        const candidate = nameInput.value.trim();
+        if (!candidate) {
+          nameInput.focus();
+          return;
+        }
+
+        userName = candidate;
+        socket.emit('join', userName);
+        nameInput.value = userName;
+        input.focus();
+      }
+
+      function appendMessage(data, type = 'other') {
+        const item = document.createElement('li');
+        item.className = `message ${type}`;
+
+        if (data.type === 'info' || data.type === 'join' || data.type === 'leave') {
+          item.className = 'message system';
+          item.textContent = data.text;
+        } else {
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.innerHTML = `<span>${data.name}</span><span>${data.time}</span>`;
+
+          const text = document.createElement('div');
+          text.textContent = data.text;
+
+          item.appendChild(meta);
+          item.appendChild(text);
+        }
+
+        messages.appendChild(item);
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+
+      joinBtn.addEventListener('click', setUserName);
+      nameInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          setUserName();
+        }
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        socket.emit('chat_message', message);
+        input.value = '';
+        handleTyping(false);
+      });
+
+      function handleTyping(isTyping) {
+        socket.emit('typing', isTyping);
+
+        if (isTyping) {
+          typingIndicator.textContent = `${userName} is typing...`;
+        } else {
+          typingIndicator.textContent = '';
+        }
+      }
+
+      input.addEventListener('input', () => {
+        if (!userName) return;
+
+        if (input.value.trim()) {
+          handleTyping(true);
+          clearTimeout(typingTimeout);
+          typingTimeout = setTimeout(() => handleTyping(false), 1000);
+        } else {
+          handleTyping(false);
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        handleTyping(false);
+      });
+
+      socket.on('chat_message', (data) => {
+        const isSelf = data.name === userName;
+        appendMessage(data, isSelf ? 'self' : 'other');
+      });
+
+      socket.on('system_message', (data) => {
+        appendMessage(data, 'system');
+      });
+
+      socket.on('typing', (data) => {
+        if (data.isTyping) {
+          typingIndicator.textContent = `${data.name} is typing...`;
+        } else if (typingIndicator.textContent.includes(data.name)) {
+          typingIndicator.textContent = '';
+        }
+      });
+
+      nameInput.value = userName;
+      nameInput.focus();
+    </script>
+  </body>
+</html>
