@@ -51,12 +51,6 @@ On Windows PowerShell, you may need to run the app with Command Prompt if execut
 ```bash
 cmd /c "cd /d c:\Users\Marwan\Downloads\socketio && npm install && npm start"
 ```
-## Demo
-
-<video width="800" controls>
-  <source src="https://github.com/marwan-info/socket-io-chat-room/raw/refs/heads/main/socketiovideo.mp4" type="video/mp4">
-</video>
-
 ## License
 
 This project is for learning and demo purposes.
