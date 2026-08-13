@@ -51,7 +51,9 @@ On Windows PowerShell, you may need to run the app with Command Prompt if execut
 ```bash
 cmd /c "cd /d c:\Users\Marwan\Downloads\socketio && npm install && npm start"
 ```
+## Demo
 
+[Watch Demo](./socketiolivechat.mp4)
 ## License
 
 This project is for learning and demo purposes.
